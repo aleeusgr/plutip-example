@@ -16,8 +16,8 @@
         jailbreakUnbreak = pkg:
           pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
 
-        packageName = "hello-haskell-flake";
-        versionNum = "0.1.0.0";
+        packageName = "plutus-testing";
+        versionNum = "0.0.0.1";
       in {
         packages.${packageName} = pkgs.stdenv.mkDerivation rec {
           pname = "${packageName}";
