@@ -1,27 +1,26 @@
-cabal-version:      2.4
-name:               plutus-testing
+cabal-version:      3.0
+name:               hello-haskell-flake
 version:            0.1.0.0
-
--- A short (one-line) description of the package.
--- synopsis: a testing suite for ppbl
+synopsis:           Experimenting with flakes.
 
 -- A longer description of the package.
--- description: Run a unit test on a smart contract.
+-- description:
+homepage:           github.com/mhwombat/hello-haskell-flake
 
 -- A URL where users can report bugs.
 -- bug-reports:
-
--- The license under which the package is released.
--- license:
-author:             alexeusgr
-maintainer:         alexeusgr@gmail.com
+license:            NONE
+author:             Amy de Buitléir
+maintainer:         amy@nualeargais.ie
 
 -- A copyright notice.
 -- copyright:
--- category:
-extra-source-files: CHANGELOG.md
+category:           Text
+extra-source-files:
+    CHANGELOG.md
+    README.md
 
-executable plutus-testing
+executable hello-haskell-flake
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
@@ -29,11 +28,6 @@ executable plutus-testing
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
-    build-depends:    base ^>=4.15.1.0
---              , data-default
---              , mtl
---              , optparse-applicative
---                    , plutip
---              , positive
+    build-depends:    base ^>=4.14.3.0
     hs-source-dirs:   app
     default-language: Haskell2010
