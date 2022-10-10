@@ -59,16 +59,15 @@
         };
   
         defaultPackage = self.packages.${system}.${packageName};
-        plutip = "";
         # This stuff will be available when you run nix develop, but not nix build.
         devShell = pkgs.mkShell {
           buildInputs = with haskellPackages; [
             haskell-language-server
             ghcid
             cabal-install
-            plutip
           ];
           inputsFrom = builtins.attrValues self.packages.${system};
+          inherit plutip;
         };
 
         # A NixOS module, if applicable (e.g. if the package provides a system service).
