@@ -7,9 +7,11 @@
     plutip.url = "github:mlabs-haskell/plutip";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, plutip }:
     flake-utils.lib.eachDefaultSystem (system:
       let
+        inherit plutip;
+
         pkgs = nixpkgs.legacyPackages.${system};
 
         haskellPackages = pkgs.haskellPackages;
@@ -64,6 +66,7 @@
             haskell-language-server
             ghcid
             cabal-install
+            plutip
           ];
           inputsFrom = builtins.attrValues self.packages.${system};
         };
