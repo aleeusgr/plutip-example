@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
+    #plutip.url = "github:mlabs-haskell/plutip";
   };
 
   outputs = { self, nixpkgs, flake-utils }:
