@@ -1,6 +1,6 @@
 {
-  description = "plutip-flake";
-  nixConfig.bash-prompt = "\\[\\e[0m\\][\\[\\e[0;2m\\]plutip-flake \\[\\e[0;1m\\]plutip-flake \\[\\e[0;93m\\]\\w\\[\\e[0m\\]]\\[\\e[0m\\]$ \\[\\e[0m\\]";
+  description = "plutus-testing";
+  nixConfig.bash-prompt = "\\[\\e[0m\\][\\[\\e[0;2m\\]plutus-testing \\[\\e[0;1m\\]plutus-testing \\[\\e[0;93m\\]\\w\\[\\e[0m\\]]\\[\\e[0m\\]$ \\[\\e[0m\\]";
 
   inputs = {
     nixpkgs.follows = "plutip/nixpkgs";
@@ -33,7 +33,7 @@
             pkgs' = nixpkgsFor' system;
             plutipin = inputs.plutip.inputs;
             project = pkgs.haskell-nix.cabalProject' {
-              name = "plutip-flake";
+              name = "plutus-testing";
               src = ./.;
               compiler-nix-name = ghcVersion;
               inherit (plutip) cabalProjectLocal;
