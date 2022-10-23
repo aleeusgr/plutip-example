@@ -1,84 +1,88 @@
 {
-  description = "My haskell application";
+  description = "plutip-flake";
+  nixConfig.bash-prompt = "\\[\\e[0m\\][\\[\\e[0;2m\\]plutip-flake \\[\\e[0;1m\\]plutip-flake \\[\\e[0;93m\\]\\w\\[\\e[0m\\]]\\[\\e[0m\\]$ \\[\\e[0m\\]";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.follows = "plutip/nixpkgs";
+    haskell-nix.follows = "plutip/haskell-nix";
+
     plutip.url = "github:mlabs-haskell/plutip";
   };
 
-  outputs = { self, nixpkgs, flake-utils, plutip }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        inherit plutip;
 
-        pkgs = nixpkgs.legacyPackages.${system};
+  outputs = inputs@{ self, nixpkgs, haskell-nix, plutip, ... }:
+    let
+      defaultSystems = [ "x86_64-linux" "x86_64-darwin" ];
+      perSystem = nixpkgs.lib.genAttrs defaultSystems;
 
-        haskellPackages = pkgs.haskellPackages;
+      nixpkgsFor = system: import nixpkgs {
+        inherit system;
+        overlays = [ haskell-nix.overlay (import "${plutip.inputs.iohk-nix}/overlays/crypto") ];
+        inherit (haskell-nix) config;
+      };
+      nixpkgsFor' = system: import nixpkgs { inherit system; };
 
-        jailbreakUnbreak = pkg:
-          pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
+      deferPluginErrors = true;
 
-        packageName = "plutus-testing";
-        versionNum = "0.0.0.1";
-      in {
-        packages.${packageName} = pkgs.stdenv.mkDerivation rec {
-          pname = "${packageName}";
-          version = "${versionNum}";
+      offchain = rec {
+        ghcVersion = "ghc8107";
 
-          src = ./.;
+        projectFor = system:
+          let
+            pkgs = nixpkgsFor system;
+            pkgs' = nixpkgsFor' system;
+            plutipin = inputs.plutip.inputs;
+            project = pkgs.haskell-nix.cabalProject' {
+              name = "plutip-flake";
+              src = ./.;
+              compiler-nix-name = ghcVersion;
+              inherit (plutip) cabalProjectLocal;
+              extraSources = plutip.extraSources ++ [
+                {
+                  src = "${plutip}";
+                  subdirs = [ "." ];
+                }
+              ];
+              modules = plutip.haskellModules;
+              shell = {
+                withHoogle = true;
 
-          nativeBuildInputs = [
-            pkgs.cabal-install
-            pkgs.ghc
-          ];
+                exactDeps = true;
 
-          unpackPhase =
-            ''
-              cp -r $src/* .
-            '';
+                # We use the ones from Nixpkgs, since they are cached reliably.
+                # Eventually we will probably want to build these with haskell.nix.
+                nativeBuildInputs = [
+                  pkgs'.cabal-install
+                  pkgs'.fd
+                  pkgs'.hlint
 
-          configurePhase =
-            ''
-              mkdir -p cabal
-              CABAL_DIR=$PWD/cabal cabal user-config init
-              sed --in-place '/^repository /d; /^ *url:/d; /^ *--/d' cabal/config
-            '';
+                  project.hsPkgs.cardano-cli.components.exes.cardano-cli
+                  project.hsPkgs.cardano-node.components.exes.cardano-node
+                ];
 
-          buildPhase =
-            ''
-              CABAL_DIR=$PWD/cabal cabal build
-            '';
+                tools.haskell-language-server = "latest";
 
-          installPhase =
-            ''
-              CABAL_DIR=$PWD/cabal cabal install
-              mkdir -p $out/bin
-              cp cabal/bin/${packageName} $out/bin/
-            '';
-        };
-  
-        defaultPackage = self.packages.${system}.${packageName};
-        inherit plutip;
-        # This stuff will be available when you run nix develop, but not nix build.
-        devShell = pkgs.mkShell {
-          buildInputs = with haskellPackages; [
-            haskell-language-server
-            ghcid
-            cabal-install
-          ];
-          inputsFrom = builtins.attrValues self.packages.${system};
-          inherit plutip;
-        };
+                additional = ps: [ ps.plutip ];
+              };
+            };
+          in
+          project;
+      };
+    in
+    {
+      inherit nixpkgsFor;
 
-        # A NixOS module, if applicable (e.g. if the package provides a system service).
-        nixosModules.${packageName}  =
-          { pkgs, ... }:
-          {
-            nixpkgs.overlays = [ self.overlay ];
-            environment.systemPackages = [ pkgs.${packageName}  ];
-            #systemd.services = { ... };
-          };
+      offchain = {
+        project = perSystem offchain.projectFor;
+        flake = perSystem (system: (offchain.projectFor system).flake { });
+      };
+
+      packages = perSystem (system:
+        self.offchain.flake.${system}.packages
+      );
+
+      devShells = perSystem (system: {
+        offchain = self.offchain.flake.${system}.devShell;
       });
+    };
 }
-

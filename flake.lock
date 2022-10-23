@@ -72,16 +72,16 @@
         "typed-protocols": "typed-protocols"
       },
       "locked": {
-        "lastModified": 1663679953,
-        "narHash": "sha256-oMe7ZX6dSsqrQZRMHEkXM3T/FSOU8PvPlONyeeVi9ok=",
+        "lastModified": 1665413135,
+        "narHash": "sha256-ZUfqxC7+5pLtmD/e1ABsHKGu2+hi/JvWRORvfnf13y4=",
         "owner": "mlabs-haskell",
         "repo": "bot-plutus-interface",
-        "rev": "857ec745d50f7f0ebd5cd934110403fae301ef6f",
+        "rev": "d6cf1e3686bc31bb2571c6feefbe28e3a2c8bb06",
         "type": "github"
       },
       "original": {
         "owner": "mlabs-haskell",
-        "ref": "857ec745d50f7f0ebd5cd934110403fae301ef6f",
+        "ref": "d6cf1e3686bc31bb2571c6feefbe28e3a2c8bb06",
         "repo": "bot-plutus-interface",
         "type": "github"
       }
@@ -357,21 +357,6 @@
     },
     "flake-utils": {
       "locked": {
-        "lastModified": 1659877975,
-        "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "c0e246b9b83f637f4681389ecabcb2681b4f3af0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "flake-utils_2": {
-      "locked": {
         "lastModified": 1644229661,
         "narHash": "sha256-1YdnJAsNy69bpcjuoKdOYQX0YxZBiCYZo4Twxerqv7k=",
         "owner": "numtide",
@@ -459,7 +444,7 @@
         "cabal-34": "cabal-34",
         "cabal-36": "cabal-36",
         "cardano-shell": "cardano-shell",
-        "flake-utils": "flake-utils_2",
+        "flake-utils": "flake-utils",
         "ghc-8.6.5-iohk": "ghc-8.6.5-iohk",
         "hackage": "hackage",
         "hpc-coveralls": "hpc-coveralls",
@@ -653,7 +638,7 @@
     "nix": {
       "inputs": {
         "lowdown-src": "lowdown-src",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
         "nixpkgs-regression": "nixpkgs-regression"
       },
       "locked": {
@@ -689,17 +674,17 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1665322825,
-        "narHash": "sha256-ryDvwuNJP8aHUyiVOvjyjVx2P1FvsuEvNEe64ZnALV8=",
+        "lastModified": 1632864508,
+        "narHash": "sha256-d127FIvGR41XbVRDPVvozUPQ/uRHbHwvfyKHwEt5xFM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "dcd6aa7b3b0a44f9143c3f6a07a79b85d6bb3960",
+        "rev": "82891b5e2c2359d7e58d08849e4c89511ab94234",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "type": "github"
+        "id": "nixpkgs",
+        "ref": "nixos-21.05-small",
+        "type": "indirect"
       }
     },
     "nixpkgs-2003": {
@@ -781,21 +766,6 @@
         "type": "github"
       }
     },
-    "nixpkgs_2": {
-      "locked": {
-        "lastModified": 1632864508,
-        "narHash": "sha256-d127FIvGR41XbVRDPVvozUPQ/uRHbHwvfyKHwEt5xFM=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "82891b5e2c2359d7e58d08849e4c89511ab94234",
-        "type": "github"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "ref": "nixos-21.05-small",
-        "type": "indirect"
-      }
-    },
     "old-ghc-nix": {
       "flake": false,
       "locked": {
@@ -869,11 +839,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1663939616,
-        "narHash": "sha256-wUMaxn+6pytA6qVgQrCI7Fi3WPFuJeJp6yuCaCDuhXA=",
+        "lastModified": 1665487875,
+        "narHash": "sha256-E+wVoTq4ergxHzTsXsuYBx4abwmZHSf1+lZQsKbRAXQ=",
         "owner": "mlabs-haskell",
         "repo": "plutip",
-        "rev": "1da1d04d13902166fcf301c5104eb6e1d5a624d1",
+        "rev": "dc5c9440fe2a66d533f383bd6f6477ad764da1f9",
         "type": "github"
       },
       "original": {
@@ -952,8 +922,14 @@
     },
     "root": {
       "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs",
+        "haskell-nix": [
+          "plutip",
+          "haskell-nix"
+        ],
+        "nixpkgs": [
+          "plutip",
+          "nixpkgs"
+        ],
         "plutip": "plutip"
       }
     },
