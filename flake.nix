@@ -59,6 +59,7 @@
         };
   
         defaultPackage = self.packages.${system}.${packageName};
+        inherit plutip;
         # This stuff will be available when you run nix develop, but not nix build.
         devShell = pkgs.mkShell {
           buildInputs = with haskellPackages; [
