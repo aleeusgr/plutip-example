@@ -1,12 +1,12 @@
 cabal-version:      2.4
 name:               plutus-testing
-version:            0.0.0.1
+version:            0.1.0.0
 
 -- A short (one-line) description of the package.
--- synopsis: a testing suite for ppbl
+-- synopsis: a unit test for tasty
 
 -- A longer description of the package.
--- description: Run a unit test on a smart contract.
+-- description: https://devtut.github.io/haskell/testing-with-tasty.html
 
 -- A URL where users can report bugs.
 -- bug-reports:
@@ -31,6 +31,8 @@ executable plutus-testing
     -- other-extensions:
     build-depends:    base ^>=4.15.1.0
                     , tasty
---                  , plutip
+                    , tasty-smallcheck
+                    , tasty-quickcheck
+                    , tasty-hunit
     hs-source-dirs:   app
     default-language: Haskell2010
