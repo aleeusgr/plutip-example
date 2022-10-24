@@ -3,7 +3,6 @@
 
 * Thanks to MLabs: added [development env](https://github.com/MitchyCola/plutip-flake)
 
-
 ## 0.0.0.1 -- 2022-9-Oct
 
 * First version. Couple of days of searching of how to init a haskell flake. It was right not to provide one in ppbl, the one I found yesterday is really educational.
