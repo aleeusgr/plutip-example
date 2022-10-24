@@ -1,81 +1,88 @@
 {
-  description = "My haskell application";
+  description = "plutus-testing";
+  nixConfig.bash-prompt = "\\[\\e[0m\\][\\[\\e[0;2m\\]plutus-testing \\[\\e[0;1m\\]plutus-testing \\[\\e[0;93m\\]\\w\\[\\e[0m\\]]\\[\\e[0m\\]$ \\[\\e[0m\\]";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
-    flake-utils.url = "github:numtide/flake-utils";
-    #plutip.url = "github:mlabs-haskell/plutip";
+    nixpkgs.follows = "plutip/nixpkgs";
+    haskell-nix.follows = "plutip/haskell-nix";
+
+    plutip.url = "github:mlabs-haskell/plutip";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
 
-        haskellPackages = pkgs.haskellPackages;
+  outputs = inputs@{ self, nixpkgs, haskell-nix, plutip, ... }:
+    let
+      defaultSystems = [ "x86_64-linux" "x86_64-darwin" ];
+      perSystem = nixpkgs.lib.genAttrs defaultSystems;
 
-        jailbreakUnbreak = pkg:
-          pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
+      nixpkgsFor = system: import nixpkgs {
+        inherit system;
+        overlays = [ haskell-nix.overlay (import "${plutip.inputs.iohk-nix}/overlays/crypto") ];
+        inherit (haskell-nix) config;
+      };
+      nixpkgsFor' = system: import nixpkgs { inherit system; };
 
-        packageName = "plutus-testing";
-        versionNum = "0.0.0.1";
-      in {
-        packages.${packageName} = pkgs.stdenv.mkDerivation rec {
-          pname = "${packageName}";
-          version = "${versionNum}";
+      deferPluginErrors = true;
 
-          src = ./.;
+      offchain = rec {
+        ghcVersion = "ghc8107";
 
-          nativeBuildInputs = [
-            pkgs.cabal-install
-            pkgs.ghc
-          ];
+        projectFor = system:
+          let
+            pkgs = nixpkgsFor system;
+            pkgs' = nixpkgsFor' system;
+            plutipin = inputs.plutip.inputs;
+            project = pkgs.haskell-nix.cabalProject' {
+              name = "plutus-testing";
+              src = ./.;
+              compiler-nix-name = ghcVersion;
+              inherit (plutip) cabalProjectLocal;
+              extraSources = plutip.extraSources ++ [
+                {
+                  src = "${plutip}";
+                  subdirs = [ "." ];
+                }
+              ];
+              modules = plutip.haskellModules;
+              shell = {
+                withHoogle = true;
 
-          unpackPhase =
-            ''
-              cp -r $src/* .
-            '';
+                exactDeps = true;
 
-          configurePhase =
-            ''
-              mkdir -p cabal
-              CABAL_DIR=$PWD/cabal cabal user-config init
-              sed --in-place '/^repository /d; /^ *url:/d; /^ *--/d' cabal/config
-            '';
+                # We use the ones from Nixpkgs, since they are cached reliably.
+                # Eventually we will probably want to build these with haskell.nix.
+                nativeBuildInputs = [
+                  pkgs'.cabal-install
+                  pkgs'.fd
+                  pkgs'.hlint
 
-          buildPhase =
-            ''
-              CABAL_DIR=$PWD/cabal cabal build
-            '';
+                  project.hsPkgs.cardano-cli.components.exes.cardano-cli
+                  project.hsPkgs.cardano-node.components.exes.cardano-node
+                ];
 
-          installPhase =
-            ''
-              CABAL_DIR=$PWD/cabal cabal install
-              mkdir -p $out/bin
-              cp cabal/bin/${packageName} $out/bin/
-            '';
-        };
+                tools.haskell-language-server = "latest";
 
-        defaultPackage = self.packages.${system}.${packageName};
+                additional = ps: [ ps.plutip ];
+              };
+            };
+          in
+          project;
+      };
+    in
+    {
+      inherit nixpkgsFor;
 
-        # This stuff will be available when you run nix develop, but not nix build.
-        devShell = pkgs.mkShell {
-          buildInputs = with haskellPackages; [
-            haskell-language-server
-            ghcid
-            cabal-install
-          ];
-          inputsFrom = builtins.attrValues self.packages.${system};
-        };
+      offchain = {
+        project = perSystem offchain.projectFor;
+        flake = perSystem (system: (offchain.projectFor system).flake { });
+      };
 
-        # A NixOS module, if applicable (e.g. if the package provides a system service).
-        nixosModules.${packageName}  =
-          { pkgs, ... }:
-          {
-            nixpkgs.overlays = [ self.overlay ];
-            environment.systemPackages = [ pkgs.${packageName}  ];
-            #systemd.services = { ... };
-          };
+      packages = perSystem (system:
+        self.offchain.flake.${system}.packages
+      );
+
+      devShells = perSystem (system: {
+        offchain = self.offchain.flake.${system}.devShell;
       });
+    };
 }
-
