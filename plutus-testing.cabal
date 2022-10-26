@@ -21,6 +21,18 @@ maintainer:         alexeusgr@gmail.com
 -- category:
 extra-source-files: CHANGELOG.md
 
+test-suite tests
+   ghc-options: -Wall
+   default-extensions:  OverloadedStrings
+   type: exitcode-stdio-1.0
+   main-is: HSpecTests.hs
+   build-depends:    base ^>=4.15.1.0
+                   , tasty
+                   , tasty-smallcheck
+                   , tasty-quickcheck
+                   , tasty-hunit
+   default-language:    Haskell2010
+
 executable plutus-testing
     main-is:          Main.hs
 
@@ -30,9 +42,5 @@ executable plutus-testing
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:    base ^>=4.15.1.0
-                    , tasty
-                    , tasty-smallcheck
-                    , tasty-quickcheck
-                    , tasty-hunit
     hs-source-dirs:   app
     default-language: Haskell2010
