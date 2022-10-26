@@ -25,7 +25,8 @@ test-suite tests
    ghc-options: -Wall
    default-extensions:  OverloadedStrings
    type: exitcode-stdio-1.0
-   main-is: HSpecTests.hs
+   main-is: Tasty.hs
+   Hs-source-dirs:   test
    build-depends:    base ^>=4.15.1.0
                    , tasty
                    , tasty-smallcheck
