@@ -1,1 +1,1 @@
-nix develop .#offchain
+nix develop .#offchain --extra-experimental-features flakes
